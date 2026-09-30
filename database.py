@@ -220,6 +220,26 @@ def delete_assignment(assignment_id):
     connection.commit()
     connection.close()
 
+def get_visible_assignments():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM assignments
+        WHERE 
+            completed = 0
+            OR completed_at IS NULL
+            OR date(completed_at) = date('now', 'localtime')
+        ORDER BY
+            completed ASC,
+            due_date ASC,
+            COALESCE(due_time, '23:59') ASC
+    """)
+    assignments = cursor.fetchall()
+    connection.close()
+
+    return assignments
 
 # -------------------------
 # Run directly
